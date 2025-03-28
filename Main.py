@@ -77,7 +77,7 @@ def stop_monitoring():
 
 # GUI
 root = tk.Tk()
-root.title("Minecraft Backup Manager")
+root.title("Bedrock Backup")
 
 frame = tk.Frame(root, padx=10, pady=10)
 frame.pack()
