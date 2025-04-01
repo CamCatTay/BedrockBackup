@@ -9,32 +9,34 @@ from tkinter import messagebox
 # Constants
 CONFIG_FILE = "config.json"
 DEFAULT_INTERVAL = 30 ## Default backup interval is 30 minutes
+DEFAULT_MAX_BACKUPS = 10 ## Default amount of backups that are in rotation
 
 def load_config():
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, "r") as f:
             return json.load(f)
-    return {"worlds_folder": "", "backup_folder": "", "interval": DEFAULT_INTERVAL}
+    return {"worlds_folder": "", "backup_folder": "", "interval": DEFAULT_INTERVAL, "max_backups": DEFAULT_MAX_BACKUPS}
 
 def save_config(config):
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f)
 
-def backup_world(target_world_folder, backup_folder, rotation_count):
+def backup_world(target_world_folder, backup_folder, max_backups):
         if not os.path.exists(target_world_folder):
             print("World not found!")
             return
 
         world_name = os.path.basename(target_world_folder)
-        timestamp = time.strftime("%Y_%m_%d_%H_%M_%S")
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
         backup_path = os.path.join(backup_folder, f"{world_name}_{timestamp}.zip")
 
         shutil.make_archive(backup_path[:-4], 'zip', target_world_folder)
         print(f"Backup created: {backup_path}")
 
         # Rotate backups
-        backups = sorted([os.path.join(backup_folder, f) for f in os.listdir(backup_folder) if f.startswith(world_name) and f.endswith(".zip")])
-        while len(backups) > rotation_count:
+        backups = sorted([os.path.join(backup_folder, file) for file in os.listdir(backup_folder) if file.startswith(world_name) and file.endswith(".zip")])
+        
+        while len(backups) > max_backups:
             os.remove(backups.pop(0))
             print("Old backup deleted.")
 
